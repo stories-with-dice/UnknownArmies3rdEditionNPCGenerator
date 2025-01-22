@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unknown Armies NPC Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+
+        .npc {
+            margin-bottom: 30px;
+        }
+
+        .npc h2 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<h1>Unknown Armies NPC Generator</h1>
+<label for="template-select">Choose a template:</label>
+<select id="template-select">
+    <option value="">--Select a Template--</option>
+</select>
+<button id="generate-npc">Generate NPC</button>
+<div id="npc-container"></div>
+
+<script>
+    function generateSanityGauges(template) {
+        return [
+            {type: "Violence", hardened: template.violence},
+            {type: "Unnatural", hardened: template.unnatural},
+            {type: "Helplessness", hardened: template.helplessness},
+            {type: "Isolation", hardened: template.isolation},
+            {type: "Self", hardened: template.self}
+        ];
+    }
+
+    function calculateAbilities(sanityGauges) {
+        const abilities = {
+            Fitness: 0,
+            Dodge: 0,
+            Status: 0,
+            Pursuit: 0,
+            Knowledge: 0,
+            Lie: 0,
+            Notice: 0,
+            Secrecy: 0,
+            Connect: 0,
+            Struggle: 0
+        };
+
+        sanityGauges.forEach(gauge => {
+            const hardened = gauge.hardened;
+            switch (gauge.type) {
+                case "Isolation":
+                    abilities.Fitness = 65 - (hardened * 5);
+                    abilities.Dodge = 15 + (hardened * 5);
+                    break;
+                case "Self":
+                    abilities.Status = 65 - (hardened * 5);
+                    abilities.Pursuit = 15 + (hardened * 5);
+                    break;
+                case "Helplessness":
+                    abilities.Knowledge = 65 - (hardened * 5);
+                    abilities.Lie = 15 + (hardened * 5);
+                    break;
+                case "Unnatural":
+                    abilities.Notice = 65 - (hardened * 5);
+                    abilities.Secrecy = 15 + (hardened * 5);
+                    break;
+                case "Violence":
+                    abilities.Connect = 65 - (hardened * 5);
+                    abilities.Struggle = 15 + (hardened * 5);
+                    break;
+            }
+        });
+
+        return abilities;
+    }
+
+    function generateNPC(template) {
+        const sanityGauges = generateSanityGauges(template);
+        const abilities = calculateAbilities(sanityGauges);
+
+        const npcDiv = document.createElement('div');
+        npcDiv.className = 'npc';
+
+        npcDiv.innerHTML = `
+                <h2>${template.name}</h2>
+                <p><strong>Wound Threshold:</strong> ${template.woundThreshold}</p>
+                <h3>"Of course I can..."</h3>
+                <p>${template.ofCourseICan}</p>
+                <h3>Sanity Gauges</h3>
+                <ul>
+                    ${sanityGauges.map(g => `<li>${g.type}: Hardened ${g.hardened}</li>`).join('')}
+                </ul>
+                <h3>Abilities</h3>
+                <ul>
+                    ${Object.entries(abilities).map(([key, value]) => `<li>${key}: ${value}%</li>`).join('')}
+                </ul>
+            `;
+
+        return npcDiv;
+    }
+
+    const templates = [
+        {
+            name: "Academic",
+            woundThreshold: 50,
+            violence: 2,
+            unnatural: 4,
+            helplessness: 3,
+            isolation: 3,
+            self: 2,
+            ofCourseICan: "access obscure libraries and archives that you never knew existed, get an interview with a reclusive expert, recognize specious bullshit research. Protects the Unnatural, Substitutes for Knowledge, Substitutes for Status."
+        },
+        {
+            name: "Addict",
+            woundThreshold: 50,
+            violence: 3,
+            unnatural: 2,
+            helplessness: 5,
+            isolation: 3,
+            self: 6,
+            ofCourseICan: "find a source, communicate in slang, exert myself in brief and intense ways if there’s drugs at the end of it. Protects Self, Substitutes for Lie, Substitutes for Secrecy."
+        },
+        {
+            name: "Alderwoman",
+            woundThreshold: 50,
+            violence: 1,
+            unnatural: 1,
+            helplessness: 4,
+            isolation: 3,
+            self: 4,
+            ofCourseICan: "get a ticket fixed, make a local business be nicer to you, get that pothole repaired, find you a temporary job for a couple weeks. Protects Helplessness, Protects Isolation, Substitutes for Status."
+        },
+        {
+            name: "Beat Cop",
+            woundThreshold: 50,
+            violence: 4,
+            unnatural: 2,
+            helplessness: 3,
+            isolation: 2,
+            self: 5,
+            ofCourseICan: "recognize the local 'usual suspects,' interpret gang tags and police radio codes, maintain a calm façade. Provides Firearm Attacks, Substitutes for Pursuit, Substitutes for Struggle."
+        },
+        {
+            name: "Bouncer",
+            woundThreshold: 50,
+            violence: 3,
+            unnatural: 2,
+            helplessness: 2,
+            isolation: 2,
+            self: 3,
+            ofCourseICan: "spot a fake ID, acquire drugs, get free drinks, hold my liquor, understand the club kids’ crazy slang. Coerces Violence, Substitutes for Fitness, Substitutes for Struggle."
+        },
+        {
+            name: "Burnt Out",
+            woundThreshold: 50,
+            violence: 5,
+            unnatural: 5,
+            helplessness: 4,
+            isolation: 4,
+            self: 3,
+            ofCourseICan: "find a meth dealer, sleep rough, tell you which dumpster has the freshest baked goods. Coerces Isolation, Protects Isolation, Substitutes for Notice."
+        },
+        {
+            name: "Charger",
+            woundThreshold: 50,
+            violence: 3,
+            unnatural: 6,
+            helplessness: 3,
+            isolation: 4,
+            self: 4,
+            ofCourseICan: "This template does not include an explicit 'Of course I can' but provides abilities for Casts Rituals, Specific Information, and Use Gutter Magick."
+        },
+        {
+            name: "Checker",
+            woundThreshold: 50,
+            violence: 2,
+            unnatural: 4,
+            helplessness: 6,
+            isolation: 3,
+            self: 3,
+            ofCourseICan: "discuss tarot and alchemy, recognize common ways to fake having magick, tell mystic inspiration from drug-induced babble. Casts Rituals, Protects the Unnatural, Substitutes for Notice."
+        },
+        {
+            name: "Daysleeper",
+            woundThreshold: 50,
+            violence: 2,
+            unnatural: 4,
+            helplessness: 3,
+            isolation: 5,
+            self: 2,
+            ofCourseICan: "Casts Rituals, Specific Information (page 47 of Book One: Play), Use Gutter Magick."
+        },
+        {
+            name: "Detective",
+            woundThreshold: 50,
+            violence: 3,
+            unnatural: 2,
+            helplessness: 3,
+            isolation: 2,
+            self: 4,
+            ofCourseICan: "run a plate, conduct surveillance, spy on personal electronics. Substitutes for Notice, Substitutes for Pursuit, Substitutes for Secrecy."
+        },
+        {
+            name: "Hacker",
+            woundThreshold: 50,
+            violence: 2,
+            unnatural: 2,
+            helplessness: 3,
+            isolation: 3,
+            self: 2,
+            ofCourseICan: "dazzle non-techies with jargon, make your laptop run faster, install or uninstall softwarez, consume alarming quantities of caffeine. Can break into and subvert computer systems (unique), Substitutes for Knowledge, Substitutes for Lie."
+        },
+        {
+            name: "Mobbed Up",
+            woundThreshold: 50,
+            violence: 6,
+            unnatural: 2,
+            helplessness: 4,
+            isolation: 4,
+            self: 3,
+            ofCourseICan: "skip the line at any place that serves food or drink, get you some fun young people to party with, source a safecracker. Coerces Violence, Substitutes for Lie, Substitutes for Status."
+        },
+        {
+            name: "Petty Crook",
+            woundThreshold: 50,
+            violence: 4,
+            unnatural: 1,
+            helplessness: 4,
+            isolation: 4,
+            self: 5,
+            ofCourseICan: "get you something cheap that fell off a truck, arrange to get you bonded out of jail, tell you which beat cop is bent. Find criminal opportunities (unique), Substitutes for Lie, Substitutes for Secrecy."
+        },
+        {
+            name: "Pony",
+            woundThreshold: 50,
+            violence: 2,
+            unnatural: 4,
+            helplessness: 2,
+            isolation: 2,
+            self: 2,
+            ofCourseICan: "stumble onto occult stuff almost entirely by accident, misunderstand things in a way that protects my body or sanity, display my near-ignorance in the most appealing possible fashion. Protects Helplessness, Protects the Unnatural, Substitutes for Connect."
+        },
+        {
+            name: "Server",
+            woundThreshold: 50,
+            violence: 3,
+            unnatural: 2,
+            helplessness: 4,
+            isolation: 3,
+            self: 2,
+            ofCourseICan: "talk to the local beat cop on a first-name basis, spot the person or event that’s out of place, give directions. Protects Isolation, Substitutes for Connect, Substitutes for Fitness."
+        },
+        {
+            name: "Working Homeless",
+            woundThreshold: 50,
+            violence: 3,
+            unnatural: 2,
+            helplessness: 4,
+            isolation: 4,
+            self: 4,
+            ofCourseICan: "know which creepy places even the violent and crazy are scared to go, haggle tenaciously, repair just about anything with just about anything as long as it only has to work one time more. Protects Self, Substitutes for Lie, Substitutes for Secrecy."
+        }
+    ];
+
+
+    const templateSelect = document.getElementById('template-select');
+    const generateButton = document.getElementById('generate-npc');
+    const npcContainer = document.getElementById('npc-container');
+
+    // Populate dropdown
+    templates.forEach((template, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = template.name;
+        templateSelect.appendChild(option);
+    });
+
+    // Generate NPC on button click
+    generateButton.addEventListener('click', () => {
+        const selectedIndex = templateSelect.value;
+        if (selectedIndex !== "") {
+            const selectedTemplate = templates[selectedIndex];
+            npcContainer.innerHTML = ""; // Clear previous NPC
+            const npc = generateNPC(selectedTemplate);
+            npcContainer.appendChild(npc);
+        } else {
+            alert("Please select a template.");
+        }
+    });
+</script>
+</body>
+</html>
